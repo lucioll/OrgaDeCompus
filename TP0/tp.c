@@ -1,9 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include <unistd.h>
+#include "wordscounter.h"
 #include <stdlib.h>
 #include <getopt.h>
-
 #include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
@@ -48,11 +47,37 @@ void show_help() {
 }
 
 void print_num_lines(char input_file[]) {
+	FILE *fp = fopen(input_file, "r");
+	if (!fp) return;
+
+	char character;
+	unsigned int aux = 0;
+	while((character = fgetc(fp)) != EOF)
+	{
+		if (character == '\n') {
+			aux ++;
+		}
+		
+	}
+	printf("%d\n", aux);
+	fclose(fp);
 
 }
 
 void print_num_words(char input_file[]) {
-
+    FILE* input;
+    input = fopen(input_file, "r");
+   
+    if (! input) {
+        printf("Error with %s\n",input_file);
+    } else {
+        wordscounter_t counter;
+        wordscounter_create(&counter);
+        wordscounter_process(&counter, input);
+        size_t words = wordscounter_get_words(&counter);
+        printf("%zu\n", words);
+        wordscounter_destroy(&counter);
+    }
 }
 
 void print_num_characters(const char input_file[]) {
@@ -64,8 +89,8 @@ void print_num_characters(const char input_file[]) {
 	while((character = fgetc(fp)) != EOF)
 	{
 		aux ++;
-		printf("%c", character);
 	}
+	aux --; //Porque parece ser que se suma el \0
 	printf("%d\n", aux);
 	fclose(fp);
 }
