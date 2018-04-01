@@ -57,7 +57,6 @@ void print_num_lines(char input_file[]) {
 		if (character == '\n') {
 			aux ++;
 		}
-		
 	}
 	printf("%d\n", aux);
 	fclose(fp);
@@ -78,6 +77,7 @@ void print_num_words(char input_file[]) {
         printf("%zu\n", words);
         wordscounter_destroy(&counter);
     }
+    fclose(input);
 }
 
 void print_num_characters(const char input_file[]) {
@@ -85,13 +85,12 @@ void print_num_characters(const char input_file[]) {
 	if (!fp) return;
 
 	char character;
-	unsigned int aux = 0;
+	unsigned long int aux = 0;
 	while((character = fgetc(fp)) != EOF)
 	{
-		aux ++;
+		if (character != '\n') aux ++; //No tenemos en cuenta los saltos.
 	}
-	aux --; //Porque parece ser que se suma el \0
-	printf("%d\n", aux);
+	printf("%li\n", aux);
 	fclose(fp);
 }
 
