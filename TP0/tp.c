@@ -1,12 +1,13 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "wordscounter.h"
+#include "contador_carac_palab_lineas.h"
 #include <stdlib.h>
 #include <getopt.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <time.h>
 
 #define VERSION 1.0
 
@@ -47,20 +48,19 @@ void show_help() {
 }
 
 void print_num_lines(char input_file[]) {
-	FILE *fp = fopen(input_file, "r");
-	if (!fp) return;
-
-	char character;
-	unsigned int aux = 0;
-	while((character = fgetc(fp)) != EOF)
-	{
-		if (character == '\n') {
-			aux ++;
-		}
-	}
-	printf("%d\n", aux);
-	fclose(fp);
-
+    FILE* input;
+    input = fopen(input_file, "r");
+   
+    if (! input) {
+        printf("Error with %s\n",input_file);
+    } else {
+        resultado_t contador;
+        contador_init(&contador);
+        contador_main(&contador, input);
+        size_t lineas = contador_get_cant_lineas(&contador);
+        printf("%zu\n", lineas);
+    }
+    fclose(input);
 }
 
 void print_num_words(char input_file[]) {
@@ -70,28 +70,25 @@ void print_num_words(char input_file[]) {
     if (! input) {
         printf("Error with %s\n",input_file);
     } else {
-        wordscounter_t counter;
-        wordscounter_create(&counter);
-        wordscounter_process(&counter, input);
-        size_t words = wordscounter_get_words(&counter);
-        printf("%zu\n", words);
-        wordscounter_destroy(&counter);
+        resultado_t contador;
+        contador_init(&contador);
+        contador_main(&contador, input);
+        size_t palabras = contador_get_cant_palabras(&contador);
+        printf("%zu\n", palabras);
     }
     fclose(input);
 }
 
 void print_num_characters(const char input_file[]) {
-	FILE *fp = fopen(input_file, "r");
-	if (!fp) return;
+	FILE *input = fopen(input_file, "r");
+	if (!input) return;
 
-	char character;
-	unsigned long int aux = 0;
-	while((character = fgetc(fp)) != EOF)
-	{
-		if (character != '\n') aux ++; //No tenemos en cuenta los saltos.
-	}
-	printf("%li\n", aux);
-	fclose(fp);
+	resultado_t contador;
+    contador_init(&contador);
+    contador_main(&contador, input);
+    size_t caracteres = contador_get_cant_caracteres(&contador);
+    printf("%zu\n", caracteres);
+	fclose(input);
 }
 
 
@@ -136,16 +133,43 @@ int main (int argc, char *argv[]) {
 	} else if (version) {
 		show_version();
 	} else if (lines && input) {
+		clock_t tiempo_inicio, tiempo_final;
+		double segundos;
+
+		tiempo_inicio = clock();
 		print_num_lines(input_file);
+
+		tiempo_final = clock();
+
+		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000) / CLOCKS_PER_SEC; //tiempo en ms
+
+		printf("Tiempo insumido:%lfms",segundos); 
 		
 	} else if (words && input) {
+		clock_t tiempo_inicio, tiempo_final;
+		double segundos;
+
+		tiempo_inicio = clock();
 		print_num_words(input_file);
+		tiempo_final = clock();
+		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000) / CLOCKS_PER_SEC; //tiempo en ms
+
+		printf("Tiempo insumido:%lfms",segundos); 
 		
 	} else if (characters && input) {
+		clock_t tiempo_inicio, tiempo_final;
+		double segundos;
+
+		tiempo_inicio = clock();
 		print_num_characters(input_file);
+		tiempo_final = clock();
+		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000) / CLOCKS_PER_SEC; //tiempo en ms
+
+		printf("Tiempo insumido:%lfms",segundos);
 
 	}else if (!feof(stdin)) {
 		
 	}
 	return EXIT_SUCCESS;
 }
+

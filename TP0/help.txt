@@ -3,11 +3,11 @@ Usage:
 	tp0 -V
 	tp0 [options] file
 Options:
-	-V, --version	Print version and quit.
-	-h, --help	Print this information.
-	-l, --words	Print number of lines in file.
-	-w, --words	Print number of words in file.
-	-c, --words	Print number of characters in file.
-	-i, --input	Path to input file.
+	-V, --version	 Print version and quit.
+	-h, --help	 Print this information.
+	-l, --lines	 Print number of lines in file.
+	-w, --words	 Print number of words in file.
+	-c, --characters Print number of characters in file.
+	-i, --input	 Path to input file.
 Examples:
 	tp0 -w -i input.txt
