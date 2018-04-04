@@ -36,8 +36,7 @@ void show_help() {
 	char buffer[size_archive + 1];
 
 	size_t read_bytes = fread(buffer, sizeof(char), size_archive, fp);
-	if (size_archive != read_bytes) 
-	{
+	if (size_archive != read_bytes) {
 		printf("Error with help.txt\n");
 		return;
 	}
@@ -48,40 +47,39 @@ void show_help() {
 }
 
 void print_num_lines(char input_file[]) {
-    FILE* input;
-    input = fopen(input_file, "r");
-   
+    FILE* input = fopen(input_file, "r");
     if (! input) {
         printf("Error with %s\n",input_file);
-    } else {
-        resultado_t contador;
-        contador_init(&contador);
-        contador_main(&contador, input);
-        size_t lineas = contador_get_cant_lineas(&contador);
-        printf("%zu\n", lineas);
+        return;
     }
+	resultado_t contador;
+    contador_init(&contador);
+    contador_main(&contador, input);
+    size_t lineas = contador_get_cant_lineas(&contador);
+    printf("%zu\n", lineas);
     fclose(input);
 }
 
 void print_num_words(char input_file[]) {
-    FILE* input;
-    input = fopen(input_file, "r");
-   
-    if (! input) {
+    FILE* input = fopen(input_file, "r");
+	if (! input) {
         printf("Error with %s\n",input_file);
-    } else {
-        resultado_t contador;
-        contador_init(&contador);
-        contador_main(&contador, input);
-        size_t palabras = contador_get_cant_palabras(&contador);
-        printf("%zu\n", palabras);
+		return;
     }
+    resultado_t contador;
+    contador_init(&contador);
+    contador_main(&contador, input);
+    size_t palabras = contador_get_cant_palabras(&contador);
+    printf("%zu\n", palabras);
     fclose(input);
 }
 
 void print_num_characters(const char input_file[]) {
 	FILE *input = fopen(input_file, "r");
-	if (!input) return;
+	if (! input) {
+        printf("Error with %s\n",input_file);
+		return;
+    }
 
 	resultado_t contador;
     contador_init(&contador);

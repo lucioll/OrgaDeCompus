@@ -5,7 +5,7 @@
 #define STATE_WAITING_WORD 0
 #define STATE_IN_WORD 1
 #define STATE_FINISHED 2
-#define DELIM_CARACTERES " ,.;:\n"
+#define DELIM_CARACTERES " ,.;:\v\r\t\f\n"
 #define FIN_LINEA "\n"
 #define ERROR 1
 
@@ -38,7 +38,7 @@ void contador_main(resultado_t* res, FILE* archivo) {
 
 char contador_next_state(resultado_t* res, char state, char c) {
     char next_state = state;
-    if ((c != '\n') & (c != EOF)) res->cant_caracteres++;
+    if ((c != '\n') && (c != EOF)) res->cant_caracteres++;
 
     if (state == STATE_WAITING_WORD) {
         if (c == EOF) { 
