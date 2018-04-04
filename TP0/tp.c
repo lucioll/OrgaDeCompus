@@ -141,7 +141,7 @@ int main (int argc, char *argv[]) {
 
 		tiempo_final = clock();
 
-		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000) / CLOCKS_PER_SEC; //tiempo en ms
+		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000 * (-1)) / CLOCKS_PER_SEC; //tiempo en ms
 
 		printf("Tiempo insumido:%lfms\n",segundos); 
 		
@@ -152,7 +152,7 @@ int main (int argc, char *argv[]) {
 		tiempo_inicio = clock();
 		print_num_words(input_file);
 		tiempo_final = clock();
-		segundos = (difftime(tiempo_inicio,tiempo_final) * 100) / CLOCKS_PER_SEC; //tiempo en ms
+		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000 * (-1)) / CLOCKS_PER_SEC; //tiempo en ms
 
 		printf("Tiempo insumido:%lfms\n",segundos); 
 		
@@ -163,7 +163,7 @@ int main (int argc, char *argv[]) {
 		tiempo_inicio = clock();
 		print_num_characters(input_file);
 		tiempo_final = clock();
-		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000) / CLOCKS_PER_SEC; //tiempo en ms
+		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000 * (-1)) / CLOCKS_PER_SEC; //tiempo en ms
 
 		printf("Tiempo insumido:%lfms\n",segundos);
 
