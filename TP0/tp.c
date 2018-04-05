@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-#include <time.h>
 
 #define VERSION 1.0
 
@@ -37,7 +36,7 @@ void show_help() {
 
 	size_t read_bytes = fread(buffer, sizeof(char), size_archive, fp);
 	if (size_archive != read_bytes) {
-		printf("Error with help.txt\n");
+		fprintf(stderr, "Error with help.txt\n");
 		return;
 	}
 	buffer[size_archive] = '\0';
@@ -46,54 +45,56 @@ void show_help() {
 	fclose(fp);
 }
 
-void print_num_lines(char input_file[]) {
-    FILE* input = fopen(input_file, "r");
-    if (! input) {
-        printf("Error with %s\n",input_file);
-        return;
-    }
-	resultado_t contador;
+void print_num_lines(char* input_file) {
+	FILE* input = fopen(input_file, "r");
+	if (! input) {
+		fprintf(stderr, "Error with %s\n",input_file);
+		return;
+	}
+    
+    resultado_t contador;
     contador_init(&contador);
     contador_main(&contador, input);
     size_t lineas = contador_get_cant_lineas(&contador);
-    printf("%zu\n", lineas);
+    fprintf(stdout, "%zu %s\n", lineas, input_file);
     fclose(input);
 }
 
-void print_num_words(char input_file[]) {
+void print_num_words(char* input_file) {
     FILE* input = fopen(input_file, "r");
 	if (! input) {
-        printf("Error with %s\n",input_file);
+		fprintf(stderr, "Error with %s\n",input_file);
 		return;
-    }
+	}
+    
     resultado_t contador;
     contador_init(&contador);
     contador_main(&contador, input);
     size_t palabras = contador_get_cant_palabras(&contador);
-    printf("%zu\n", palabras);
+    fprintf(stdout, "%zu %s\n", palabras, input_file);
     fclose(input);
 }
 
-void print_num_characters(const char input_file[]) {
-	FILE *input = fopen(input_file, "r");
+void print_num_characters(char* input_file) {
+	FILE* input = fopen(input_file, "r");
 	if (! input) {
-        printf("Error with %s\n",input_file);
+		fprintf(stderr, "Error with %s\n",input_file);
 		return;
-    }
+	}
 
 	resultado_t contador;
     contador_init(&contador);
     contador_main(&contador, input);
     size_t caracteres = contador_get_cant_caracteres(&contador);
-    printf("%zu\n", caracteres);
+    fprintf(stdout, "%zu %s\n", caracteres, input_file);
 	fclose(input);
 }
 
 
 int main (int argc, char *argv[]) {
-	bool help, version, lines,words,characters, input;
+	bool help, version, lines,words, characters, input;
 	help = version = lines = words = characters = input = false;
-	char *input_file;
+	char* input_file;
 	input_file = NULL;
 	int flag = 0;
 	struct option opts[] = {
@@ -131,42 +132,11 @@ int main (int argc, char *argv[]) {
 	} else if (version) {
 		show_version();
 	} else if (lines && input) {
-		clock_t tiempo_inicio, tiempo_final;
-		double segundos;
-
-		tiempo_inicio = clock();
 		print_num_lines(input_file);
-
-		tiempo_final = clock();
-
-		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000 * (-1)) / CLOCKS_PER_SEC; //tiempo en ms
-
-		printf("Tiempo insumido:%lfms\n",segundos); 
-		
 	} else if (words && input) {
-		clock_t tiempo_inicio, tiempo_final;
-		double segundos;
-
-		tiempo_inicio = clock();
 		print_num_words(input_file);
-		tiempo_final = clock();
-		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000 * (-1)) / CLOCKS_PER_SEC; //tiempo en ms
-
-		printf("Tiempo insumido:%lfms\n",segundos); 
-		
 	} else if (characters && input) {
-		clock_t tiempo_inicio, tiempo_final;
-		double segundos;
-
-		tiempo_inicio = clock();
-		print_num_characters(input_file);
-		tiempo_final = clock();
-		segundos = (difftime(tiempo_inicio,tiempo_final) * 1000 * (-1)) / CLOCKS_PER_SEC; //tiempo en ms
-
-		printf("Tiempo insumido:%lfms\n",segundos);
-
-	}else if (!feof(stdin)) {
-		
+		print_num_words(input_file);
 	}
 	return EXIT_SUCCESS;
 }
