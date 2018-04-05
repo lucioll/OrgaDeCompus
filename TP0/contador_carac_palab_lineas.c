@@ -38,7 +38,7 @@ void contador_main(resultado_t* res, FILE* archivo) {
 
 char contador_next_state(resultado_t* res, char state, char c) {
     char next_state = state;
-    if ((c != '\n') && (c != EOF)) res->cant_caracteres++;
+    if (c != EOF) res->cant_caracteres++;
 
     if (state == STATE_WAITING_WORD) {
         if (c == EOF) { 
