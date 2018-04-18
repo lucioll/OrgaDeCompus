@@ -1,0 +1,11 @@
+Usage:
+  traspuesta -h
+  traspuesta -V
+  traspuesta [options] filename
+Options:
+  -h, --help    Prints usage information.
+  -V, --version Prints version information.
+  -o, --output  Path to output file.
+
+Examples:
+traspuesta -o -mymatrix
