@@ -6,8 +6,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include "matrix.h"
 
 #define VERSION 1.0
+#define POS_MATRIX 1
+#define ERROR -1
 
 size_t fsize(const char *filename) {
     struct stat st;
@@ -18,7 +21,7 @@ size_t fsize(const char *filename) {
     fprintf(stderr, "Cannot determine size of %s: %s\n",
             filename, strerror(errno));
 
-    return -1;
+    return ERROR;
 }
 
 void show_version() {
@@ -79,6 +82,14 @@ int main (int argc, char *argv[]) {
 	} else if (output) {
 		printf("%s\n", output_file);
 		//(output_file);
+	} else {
+		int fila, columna;
+		long long *m;
+		if(file_parser(argv[POS_MATRIX], &fila, &columna, &m) != 0){
+			return ERROR;
+		}
+		print_traspuesta(fila, columna, m);
+		free(m);
 	}
 	return EXIT_SUCCESS;
 }
