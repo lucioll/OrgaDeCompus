@@ -13,7 +13,7 @@
 
 #define ERROR_PARAM "Encabezado %s no compatible, deberia ser n_fil n_col. \n"
 #define ERROR_FILE "No se puede abrir el archivo <%s>.\n"
-#define ERROR_PARSER "Error en linea: \n%sSe esperaban %d  \
+#define ERROR_PARSER "Error en linea: \n%sSe esperaban %d elementos \
 o un espacio en final de linea.\n"
 #define ERROR_FILA "Error en el parametro de filas, esperadas: %d.\n"
 #define ERROR_VALUE "Error en la linea: \n%s<%s> no es un numero.\n"
