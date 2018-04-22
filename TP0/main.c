@@ -63,7 +63,7 @@ int analyse_text(bool lines, bool words, bool characters, char *input_file) {
 
 
 void show_version() {
-	printf("v%f\n", VERSION);
+	printf("Version: %.1f\n", VERSION);
 }
 
 void show_help() {

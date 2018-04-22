@@ -25,7 +25,7 @@ size_t fsize(const char *filename) {
 }
 
 void show_version() {
-	printf("v%f\n", VERSION);
+	printf("Version: %.1f\n", VERSION);
 }
 
 void show_help() {
@@ -38,7 +38,7 @@ void show_help() {
 
 	size_t read_bytes = fread(buffer, sizeof(char), size_archive, fp);
 	if (size_archive != read_bytes) {
-		fprintf(stderr, "Error with help.txt\n");
+		printf("Error: %s\n", strerror(errno));
 		return;
 	}
 	buffer[size_archive] = '\0';

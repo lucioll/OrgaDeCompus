@@ -11,10 +11,10 @@
 #include <ctype.h>
 #include "matrix.h"
 
-#define ERROR_PARAM "Encabezado %s no cmpatible, deberia ser n_fil n_col. \n"
+#define ERROR_PARAM "Encabezado %s no compatible, deberia ser n_fil n_col. \n"
 #define ERROR_FILE "No se puede abrir el archivo <%s>.\n"
-#define ERROR_PARSER "Error en linea: \n%sDistintos campos a %d esperados \
-o un esapcio en final de linea.\n"
+#define ERROR_PARSER "Error en linea: \n%sSe esperaban %d  \
+o un espacio en final de linea.\n"
 #define ERROR_FILA "Error en el parametro de filas, esperadas: %d.\n"
 #define ERROR_VALUE "Error en la linea: \n%s<%s> no es un numero.\n"
 
@@ -114,8 +114,23 @@ int file_parser(char *file_name, int *fil, int *col, long long **m)
 			return 1;
 		}
 		for (int i = 0; i < *col; i++){
-			matrix[pos] = atoi(s[i]); //Falta verificar si es una valor posible.
-			pos++;
+			char *ptr;
+			long num_int;
+			float num_float;
+
+			num_int = strtol(s[i], &ptr, 10);
+			if (strlen(ptr) == 0) {
+				matrix[pos] = num_int;
+			} else if ((strlen(ptr) != '\0') & (num_int != 0)) {
+				num_float = strtof(s[i], &ptr);
+				matrix[pos] = num_float;
+			} else {
+				fprintf(stderr, ERROR_VALUE, buffer, s[i]);
+				parser_destroy(fp, s, buffer);
+				free(matrix);
+				return 1;
+			}
+			pos ++;
 		}
        	f++;
        	free_strv(s);
