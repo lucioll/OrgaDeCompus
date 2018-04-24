@@ -7,10 +7,13 @@
 #include <stdio.h>
 #include <errno.h>
 #include "matrix.h"
+#include "trasponer.h"
 
 #define VERSION 1.0
 #define POS_MATRIX 1
 #define ERROR -1
+
+#define SIZE_LONG 8
 
 size_t fsize(const char *filename) {
     struct stat st;
@@ -45,6 +48,15 @@ void show_help() {
 
 	puts(buffer);
 	fclose(fp);
+}
+
+void print_matriz(int fila, int columna, long long *matrix) {
+	for(int i = 0; i < columna; i++){
+		for(int j = 0; j < fila; j++){
+			printf("%d ", (int)matrix[i+j*fila]);
+		}
+		printf("\n");
+	}
 }
 
 
@@ -83,13 +95,17 @@ int main (int argc, char *argv[]) {
 		printf("%s\n", output_file);
 		//(output_file);
 	} else {
-		int fila, columna;
-		long long *m;
-		if(file_parser(argv[POS_MATRIX], &fila, &columna, &m) != 0){
+		unsigned int fila, columna;
+		long long *entrada;
+		long long * salida = malloc(fila * columna * SIZE_LONG);
+		if(file_parser(argv[POS_MATRIX], &fila, &columna, &entrada) != 0){
 			return ERROR;
 		}
-		print_traspuesta(fila, columna, m);
-		free(m);
+		print_traspuesta(fila, columna, entrada);
+		trasponer(fila, columna, entrada, salida);
+		print_matriz(fila, columna, salida);
+		free(entrada);
+		free(salida);
 	}
 	return EXIT_SUCCESS;
 }
