@@ -6,6 +6,8 @@ Options:
   -h, --help    Prints usage information.
   -V, --version Prints version information.
   -o, --output  Path to output file.
+  -i, --input   Path to input file.
 
 Examples:
-traspuesta -o -mymatrix
+traspuesta -o -mymatrix -i inputfile
+traspuesta -i inputfile

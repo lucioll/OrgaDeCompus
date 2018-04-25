@@ -46,12 +46,12 @@ int file_parser(char *file_name,unsigned int *fil, unsigned int *col, long long 
 	}
 	
 	long long *matrix = (long long *) malloc(*fil * \
-	*col * sizeof(long long));
+		*col * sizeof(long long));
 
 	long long numero = 0;
+	unsigned int pos = 0;
     for (unsigned int i = 0; i < *fil ; ++i) {
         for (unsigned int j = 0; j < *col ; ++j) {
-            unsigned int posicion = (i+j * *fil) * sizeof(long long);
             read = fscanf(fp,"%lld",&numero);
             if(read != 1){
                 fprintf(stderr, ERROR_FILE);
@@ -59,21 +59,20 @@ int file_parser(char *file_name,unsigned int *fil, unsigned int *col, long long 
                 fclose(fp);
                 return 1;
             }
-            matrix[posicion] = numero;
+            matrix[pos] = numero;
+            pos++;
         }
 	}
-	
 	*m = matrix;
 	fclose(fp);
 	return 0;
 }
 
 void print_traspuesta(unsigned int fila, unsigned int columna, long long *matrix) {
-	printf("Filas:%u\n", fila);
-	printf("Columnas:%u\n", columna);
+	printf("%u  %u\n", columna, fila);
 	for(unsigned int i = 0; i < columna; i++){
 		for(unsigned int j = 0; j < fila; j++){
-			printf("%lld ",(long long) matrix[(i+j*columna)* sizeof(long long)]);
+			printf("%lld ",(long long) matrix[(i+j*columna)]);
 		}
 		printf("\n");
 	}

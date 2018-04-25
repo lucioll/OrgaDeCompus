@@ -1,4 +1,4 @@
-## Instrucciones para ejecutar el TP0 en NetBSD
+## Instrucciones para ejecutar el TP1 en NetBSD
 
 * Ir a la carpeta del gxemul por medio de una terminal nueva.
 * Ejecutar "./xgxemul -e 3max -d netbsd-pmax.img".
@@ -8,13 +8,14 @@
 * En una terminal nueva escribiremos "ssh -p 2222 root@127.0.0.1" nos pedira la pass que es "orga6620".
 * Si aparece algo como "Terminal type?" apretar ctrl + c.
 * Ahora necesitamos copiar el tp a NETBSD para eso en otra terminal nueva de linux hacemos:
-	 scp -P2222 -r /home/lucio/Documentos/Compus/_tp0-c1-2018/OrgaDeCompus/TP0 root@127.0.0.1:/home/  (Nos volvera a pedir la contraseña "orga6620")
+	 scp -P2222 -r /home/lucio/Documentos/Compus/_tp0-c1-2018/OrgaDeCompus/TP1 root@127.0.0.1:/home/  (Nos volvera a pedir la contraseña "orga6620")
  
 * Una vez terminado el proceso de envio de archivos, en la terminal que tenemos el tunel a NETBSD, podemos ejecutar comandos como cd o ls para ir hasta donde esta el tp, en este caso home/TP0 y alli para compilar el tp se realiza:
 
      * gcc -c -ggdb -Wall main.c
-     * gcc -c -ggdb -Wall contador_carac_palab_lineas.c
-     * gcc main.o contador_carac_palab_lineas.o -o tp
+     * gcc -c -ggdb -Wall matrix.c
+     * gcc -c -ggdb -Wall traspuesta.S
+     * gcc main.o matrix.o trasponer.o -o traspuesta
 
 * Ahora para correr el tp solo hacemos ./tp "comandos"
 
