@@ -9,7 +9,6 @@
 #include <ctype.h>
 #include "matrix.h"
 
-
 #define ERROR_OPEN "No se puede abrir el archivo <%s>.\n"
 #define ERROR_FILA "Error al obtener parametro de filas esperadas: %d.\n"
 #define ERROR_COLUMNA "Error al obtener parametro de columnas esperadas: %d.\n"

@@ -69,9 +69,12 @@ int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, lo
 		printf("Error: %s\n", strerror(errno));
 		return -1;
 	}
-
-    for (unsigned int i = 0; i < columnas ; ++i) {
-        for (unsigned int j = 0; j < filas ; ++j) {
+	// Encabezado
+	fprintf(output,"%d %d\n", filas, columnas);
+    
+    // Matriz
+    for (unsigned int i = 0; i < filas ; ++i) {
+        for (unsigned int j = 0; j < columnas ; ++j) {
             fprintf(output,"%lld ", (long long)matrix[i+j*filas]);
         }
         fprintf(output,"\n");
@@ -88,11 +91,17 @@ int main (int argc, char *argv[]) {
 	output_file = NULL;
 	input_file = NULL;
 	int flag = 0;
+	
+	if (argc < 2){
+		fprintf(stderr,"Se debe ingresar un archivo de entrada.\n");
+        return ERROR;
+    }
+	input_file = argv[1];
+	input = true;
 	struct option opts[] = {
 		{"version", no_argument, 0, 'V'},
 		{"help", no_argument, 0, 'h'},
 		{"output", required_argument, 0, 'o'},
-		{"input", required_argument, 0, 'i'}
 	};
 
 	while ((flag = getopt_long(argc, argv, "Vho:i:", opts, NULL)) != -1) {
@@ -107,10 +116,6 @@ int main (int argc, char *argv[]) {
 				output_file = optarg;
 				output = true;
 				break;
-			case 'i' :
-				input_file = optarg;
-				input = true;
-				break;
 		}
 	}
 
@@ -118,20 +123,16 @@ int main (int argc, char *argv[]) {
 		show_help();
 	} else if (version) {
 		show_version();
-	} else if (!input) {
-        printf("Se debe ingresar un archivo de entrada\n");
-        return ERROR;
 	} else {
 		unsigned int fila, columna;
 		long long *entrada;
 		if(file_parser(input_file, &fila, &columna, &entrada) != 0){
 			return ERROR;
 		}
-		//print_traspuesta(fila, columna, entrada);
 		long long *salida = (long long *) malloc(fila * \
 			columna * sizeof(long long));
 		trasponer(fila, columna, entrada, salida);
-		save_matrix(output_file, fila, columna, salida);
+		save_matrix(output_file, columna, fila, salida);
 		free(entrada);
 		free(salida);
 	} 

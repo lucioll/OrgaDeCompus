@@ -67,13 +67,3 @@ int file_parser(char *file_name,unsigned int *fil, unsigned int *col, long long 
 	fclose(fp);
 	return 0;
 }
-
-void print_traspuesta(unsigned int fila, unsigned int columna, long long *matrix) {
-	printf("%u  %u\n", columna, fila);
-	for(unsigned int i = 0; i < columna; i++){
-		for(unsigned int j = 0; j < fila; j++){
-			printf("%lld ",(long long) matrix[(i+j*columna)]);
-		}
-		printf("\n");
-	}
-}
