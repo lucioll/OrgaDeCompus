@@ -12,9 +12,9 @@
  
 * Una vez terminado el proceso de envio de archivos, en la terminal que tenemos el tunel a NETBSD, podemos ejecutar comandos como cd o ls para ir hasta donde esta el tp, en este caso home/TP0 y alli para compilar el tp se realiza:
 
-     gcc -c -ggdb -Wall main.c
-     gcc -c -ggdb -Wall contador_carac_palab_lineas.c
-     gcc main.o contador_carac_palab_lineas.o -o tp
+     * gcc -c -ggdb -Wall main.c
+     * gcc -c -ggdb -Wall contador_carac_palab_lineas.c
+     * gcc main.o contador_carac_palab_lineas.o -o tp
 
 * Ahora para correr el tp solo hacemos ./tp "comandos"
 

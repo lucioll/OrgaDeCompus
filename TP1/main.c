@@ -53,7 +53,7 @@ void show_help() {
 void print_matriz(int fila, int columna, long long *matrix) {
 	for(int i = 0; i < columna; i++){
 		for(int j = 0; j < fila; j++){
-			printf("%d ", (int)matrix[i+j*fila]);
+			printf("%lld ", (long long)matrix[i+j*fila]);
 		}
 		printf("\n");
 	}
@@ -102,8 +102,8 @@ int main (int argc, char *argv[]) {
 			return ERROR;
 		}
 		print_traspuesta(fila, columna, entrada);
-		trasponer(fila, columna, entrada, salida);
-		print_matriz(fila, columna, salida);
+		//trasponer(fila, columna, entrada, salida);
+		print_matriz(fila, columna, entrada);
 		free(entrada);
 		free(salida);
 	}
