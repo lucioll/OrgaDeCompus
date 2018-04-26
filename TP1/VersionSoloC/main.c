@@ -47,15 +47,6 @@ void show_help() {
 	fclose(fp);
 }
 
-void print_matrix(int fila, int columna, long long *matrix) {
-	for(int i = 0; i < fila; i++){
-		for(int j = 0; j < columna; j++){
-			printf("%lld ", (long long)matrix[i+j*fila]);
-		}
-		printf("\n");
-	}
-}
-
 int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, long long *matrix) {
 	FILE* output;
 
@@ -72,11 +63,14 @@ int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, lo
 	fprintf(output,"%d %d\n", filas, columnas);
     
     // Matriz
+	unsigned int pos = 0;
     for (unsigned int i = 0; i < filas ; ++i) {
         for (unsigned int j = 0; j < columnas ; ++j) {
-            fprintf(output,"%lld ", (long long)matrix[i+j*filas]);
+            fprintf(output,"%lld ", (long long)matrix[pos]);
+            pos++;
         }
         fprintf(output,"\n");
+        
     }
     return 0;
 }

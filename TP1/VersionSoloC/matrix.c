@@ -69,10 +69,11 @@ int file_parser(char *file_name,unsigned int *fil, unsigned int *col, long long 
 
 int trasponer(unsigned int filas, unsigned int columnas,long long *entrada, \
 	 long long *salida) {
+	unsigned int pos = 0;
 	for(unsigned int i = 0; i < columnas; i++) {
 		for(unsigned int j = 0; j < filas; j++) {
-			int pos = (i+(j*filas));
 			salida[pos] = (long long) entrada[(i+j*columnas)];
+			pos++;
 		}
 	}
 	return 0;
