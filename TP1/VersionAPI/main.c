@@ -1,6 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <getopt.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -12,17 +10,14 @@
 #define VERSION 1.0
 #define ERROR -1
 
-
 size_t fsize(const char *filename) {
     struct stat st;
 
-    if (stat(filename, &st) == 0)
+    if (stat(filename, &st) == 0) {
         return st.st_size;
-
-    fprintf(stderr, "Cannot determine size of %s: %s\n",
-            filename, strerror(errno));
-
-    return ERROR;
+	}
+	fprintf(stderr, "Cannot determine size of %s: %s\n", filename, strerror(errno));
+	return ERROR;
 }
 
 void show_version() {
@@ -48,14 +43,14 @@ void show_help() {
 	fclose(fp);
 }
 
-int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, long long *matrix) {
+int save_matrix(char *output_name, unsigned int filas, unsigned int columnas, long long *matrix) {
 	FILE* output;
 
-	if (!output_file) {
+	if (!output_name) {
 		output = stdout;
-		output_file = "STDOUT";
 	} else {
-		output = fopen(output_file, "w");	}
+		output = fopen(output_name, "w");	
+	}
 	if (!output) {
 		fprintf(stderr,"Error: %s\n", strerror(errno));
 		return -1;
@@ -71,8 +66,10 @@ int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, lo
             pos++;
         }
         fprintf(output,"\n");
-        
     }
+    if (output != stdout) {
+		fclose(output);
+	}
     return 0;
 }
 
