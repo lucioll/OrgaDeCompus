@@ -10,14 +10,14 @@
 * Ahora necesitamos copiar el tp a NETBSD para eso en otra terminal nueva de linux hacemos:
 	 scp -P2222 -r /home/lucio/Documentos/Compus/_tp0-c1-2018/OrgaDeCompus/TP1 root@127.0.0.1:/home/  (Nos volvera a pedir la contraseña "orga6620")
  
-* Una vez terminado el proceso de envio de archivos, en la terminal que tenemos el tunel a NETBSD, podemos ejecutar comandos como cd o ls para ir hasta donde esta el tp, en este caso home/TP0 y alli para compilar el tp se realiza:
+* Una vez terminado el proceso de envio de archivos, en la terminal que tenemos el tunel a NETBSD, podemos ejecutar comandos como cd o ls para ir hasta donde esta el tp, en este caso home/TP/VersionAPI y alli para compilar el tp se realiza:
 
-     * gcc -c -ggdb -Wall main.c
-     * gcc -c -ggdb -Wall matrix.c
-     * gcc -c -ggdb -Wall traspuesta.S
+     * gcc -c -ggdb -std=c99 -Wall main.c
+     * gcc -c -ggdb -std=c99 -Wall matrix.c
+     * gcc -c -ggdb -std=c99 -Wall trasponer.S
      * gcc main.o matrix.o trasponer.o -o traspuesta
 
-* Ahora para correr el tp solo hacemos ./tp "comandos"
+* Ahora para correr el tp solo hacemos ./traspuesta "comandos"
 
 ---
 
