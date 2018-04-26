@@ -38,12 +38,12 @@ trasponer:
 
    inicializacion:     
         add     t2, zero, zero  # Indice i
-        add     t5, zero, a3   # inicializo direccion de salida en t5
+        add     t5, zero, a3    # inicializo direccion de salida en t5
 
     fori:   
         addi   t3, zero, 0  # Indice j
         beq    t2, a1, fin  # Fin
-        b forj            # Vamos a forj
+        b forj              # Vamos a forj
     
     aumentari:
         addi t2, t2, 1  # i++
@@ -58,11 +58,11 @@ trasponer:
         lw     t7, 4(t9)
         
         sw      t6, 0(t5)
-        sw      t7, 4(t5)      #guardo valor de salida en la direccion que almacena t5
-        addi    t5, t5, 8      #pos++
-        addi    t3, t3, 1      #j++
+        sw      t7, 4(t5)           #guardo valor de salida en la direccion que almacena t5
+        addi    t5, t5, 8           #pos++
+        addi    t3, t3, 1           #j++
         beq     t3, a0, aumentari   #vamos a aumentari
-b forj #vamos a forj
+        b forj                      #vamos a forj
 
 	fin:	/* PREPARE TO DELETE STACK */
     	lw gp, trasponer_frame_gp(sp)

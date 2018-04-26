@@ -65,7 +65,7 @@ int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, lo
 	} else {
 		output = fopen(output_file, "w");	}
 	if (!output) {
-		printf("Error: %s\n", strerror(errno));
+		fprintf(stderr,"Error: %s\n", strerror(errno));
 		return -1;
 	}
 	// Encabezado

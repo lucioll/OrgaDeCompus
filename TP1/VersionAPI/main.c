@@ -39,22 +39,13 @@ void show_help() {
 
 	size_t read_bytes = fread(buffer, sizeof(char), size_archive, fp);
 	if (size_archive != read_bytes) {
-		printf("Error: %s\n", strerror(errno));
+		fprintf(stderr,"Error: %s\n", strerror(errno));
 		return;
 	}
 	buffer[size_archive] = '\0';
 
 	puts(buffer);
 	fclose(fp);
-}
-
-void print_matrix(int fila, int columna, long long *matrix) {
-	for(int i = 0; i < fila; i++){
-		for(int j = 0; j < columna; j++){
-			printf("%lld ", (long long)matrix[i+j*fila]);
-		}
-		printf("\n");
-	}
 }
 
 int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, long long *matrix) {
@@ -66,18 +57,21 @@ int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, lo
 	} else {
 		output = fopen(output_file, "w");	}
 	if (!output) {
-		printf("Error: %s\n", strerror(errno));
+		fprintf(stderr,"Error: %s\n", strerror(errno));
 		return -1;
 	}
 	// Encabezado
 	fprintf(output,"%d %d\n", filas, columnas);
     
     // Matriz
+    unsigned int pos = 0;
     for (unsigned int i = 0; i < filas ; ++i) {
         for (unsigned int j = 0; j < columnas ; ++j) {
-            fprintf(output,"%lld ", (long long)matrix[i+j*filas]);
+            fprintf(output,"%lld ", (long long)matrix[pos]);
+            pos++;
         }
         fprintf(output,"\n");
+        
     }
     return 0;
 }
