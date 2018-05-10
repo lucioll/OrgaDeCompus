@@ -7,7 +7,7 @@
 #include "matrix.h"
 #include "trasponer.h"
 
-#define VERSION 1.0
+#define VERSION 2.0
 #define ERROR -1
 
 size_t fsize(const char *filename) {

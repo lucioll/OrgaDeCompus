@@ -10,14 +10,14 @@
 
 trasponer:
 
-	#define trasponer_frame_size 48
-    #define trasponer_frame_ra 40
-    #define trasponer_frame_fp 36
-    #define trasponer_frame_gp 32
-    #define trasponer_frame_4arg 60  /* Direccion base de la matriz traspuesta */
-    #define trasponer_frame_3arg 56  /* Direccion base de la matriz original */
-    #define trasponer_frame_2arg 52  /* Cantidad de columnas */
-    #define trasponer_frame_1arg 48  /* Cantidad de filas */
+	#define trasponer_frame_size 40
+    #define trasponer_frame_ra 32
+    #define trasponer_frame_fp 28
+    #define trasponer_frame_gp 24
+    #define trasponer_frame_4arg 52  /* Direccion base de la matriz traspuesta */
+    #define trasponer_frame_3arg 48  /* Direccion base de la matriz original */
+    #define trasponer_frame_2arg 44  /* Cantidad de columnas */
+    #define trasponer_frame_1arg 40  /* Cantidad de filas */
     
     .frame $fp, trasponer_frame_size, ra
 
