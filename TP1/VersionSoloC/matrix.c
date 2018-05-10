@@ -1,6 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <getopt.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -12,7 +10,7 @@
 #define ERROR_OPEN "No se puede abrir el archivo <%s>.\n"
 #define ERROR_FILA "Error al obtener parametro de filas esperadas: %d.\n"
 #define ERROR_COLUMNA "Error al obtener parametro de columnas esperadas: %d.\n"
-#define ERROR_FILE "Revisar archivo, pueden faltar datos o no contener numeros enteros. \n"
+#define ERROR_FILE "Revisar archivo, pueden faltar/sobrar datos o no contener numeros enteros. \n"
 
 
 int leer_encabezado(FILE *fp, unsigned int *fil, unsigned int *col) {
@@ -60,8 +58,17 @@ int file_parser(char *file_name,unsigned int *fil, unsigned int *col, long long 
             }
             matrix[pos] = numero;
             pos++;
-        }
+        }	
 	}
+	// verifico que no hayan datos de mas
+	read = fscanf(fp,"%lld",&numero);
+	if (read == 1) {
+		fprintf(stderr, ERROR_FILE);
+		free(matrix);
+		fclose(fp);
+		return 1;
+	}
+		
 	*m = matrix;
 	fclose(fp);
 	return 0;

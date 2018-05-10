@@ -1,6 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <getopt.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -15,13 +13,11 @@
 size_t fsize(const char *filename) {
     struct stat st;
 
-    if (stat(filename, &st) == 0)
+    if (stat(filename, &st) == 0) {
         return st.st_size;
-
-    fprintf(stderr, "Cannot determine size of %s: %s\n",
-            filename, strerror(errno));
-
-    return ERROR;
+	}
+	fprintf(stderr, "Cannot determine size of %s: %s\n", filename, strerror(errno));
+	return ERROR;
 }
 
 void show_version() {
@@ -47,14 +43,14 @@ void show_help() {
 	fclose(fp);
 }
 
-int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, long long *matrix) {
+int save_matrix(char *output_name, unsigned int filas, unsigned int columnas, long long *matrix) {
 	FILE* output;
 
-	if (!output_file) {
+	if (!output_name) {
 		output = stdout;
-		output_file = "STDOUT";
 	} else {
-		output = fopen(output_file, "w");	}
+		output = fopen(output_name, "w");	
+	}
 	if (!output) {
 		fprintf(stderr,"Error: %s\n", strerror(errno));
 		return -1;
@@ -63,15 +59,17 @@ int save_matrix(char *output_file, unsigned int filas, unsigned int columnas, lo
 	fprintf(output,"%d %d\n", filas, columnas);
     
     // Matriz
-	unsigned int pos = 0;
+    unsigned int pos = 0;
     for (unsigned int i = 0; i < filas ; ++i) {
         for (unsigned int j = 0; j < columnas ; ++j) {
             fprintf(output,"%lld ", (long long)matrix[pos]);
             pos++;
         }
-        fprintf(output,"\n");
-        
+        fprintf(output,"\n");        
     }
+    if (output != stdout) {
+		fclose(output);
+	}
     return 0;
 }
 
@@ -119,7 +117,7 @@ int main (int argc, char *argv[]) {
 	} else {
 		unsigned int fila, columna;
 		long long *entrada;
-		if(file_parser(input_file, &fila, &columna, &entrada) != 0){
+		if(file_parser(input_file, &fila, &columna, &entrada) != 0) {
 			return ERROR;
 		}
 		
