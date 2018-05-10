@@ -59,6 +59,15 @@ int file_parser(char *file_name,unsigned int *fil, unsigned int *col, long long 
             pos++;
         }
 	}
+	// verifico que no hayan datos de mas
+	read = fscanf(fp,"%lld",&numero);
+	if (read == 1) {
+		fprintf(stderr, ERROR_FILE);
+		free(matrix);
+		fclose(fp);
+		return 1;
+	}
+	
 	*m = matrix;
 	fclose(fp);
 	return 0;
