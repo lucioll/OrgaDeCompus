@@ -6,3 +6,13 @@ TP1/asd/
 TP1/VersionAPI/\.idea/codeStyles/
 
 TP1/VersionAPI/\.idea/
+
+*.ps
+
+TP2/\.idea/codeStyles/
+
+TP2/\.idea/
+
+TP2/cmake-build-debug/
+
+TP2/CMakeLists\.txt
