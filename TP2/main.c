@@ -61,7 +61,7 @@ int file_parser(char *file_name) {
     char *line = NULL;
     size_t len = 0;
     
-    while ( getline(&line, &len, fp) != -1) {
+    while (getline(&line, &len, fp) != -1) {
         char *token;
         /* get the first token */
         token = strtok(line, " ");
@@ -82,6 +82,7 @@ int file_parser(char *file_name) {
             //get_miss_rate();
         }
     }
+    free(line);
     fclose(fp);
     return 0;
 }
@@ -90,8 +91,8 @@ int file_parser(char *file_name) {
 int main (int argc, char *argv[]) {
     bool help, version, input;
     help = version = input = false;
-    char* input_file = NULL;
-
+    char* input_file;
+    input_file = NULL;
     int flag = 0;
     
     if (argc < 2){
