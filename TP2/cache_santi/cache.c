@@ -83,10 +83,10 @@ unsigned char read_byte(cache_t* cache_memory, int address) {
 	}
 	
 	if (tag == block_2nd_way->tag) {
-		if (block_1st_way->V == 1) {
+		if (block_2nd_way->V == 1) {
 			// hit
 			printf("HIT 2!\n");
-			return get_data(block_1st_way, word_offset, block_offset);
+			return get_data(block_2nd_way, word_offset, block_offset);
 		} 
 		// miss en esta via, tampoco esta en la otra entonces
 		// hay que cargar el bloque a cache, actualizar bit V
@@ -141,7 +141,7 @@ int write_byte(cache_t* cache_memory, int address, unsigned char value) {
 			// el dato ya fue almacenado en cache. Lo almaceno en memoria ppal.
 			// y actualizo el dato en cache
 			cache_memory->memory[address] = value;
-			block_1st_way->data[4 * word_offset + block_offset] = value;
+			block_2nd_way->data[4 * word_offset + block_offset] = value;
 			is_a_cache_miss = 0;
 		} else {
 			// el dato no fue almacenado en cache. Lo almaceno en memoria ppal.
