@@ -43,6 +43,13 @@ unsigned char get_data(cache_block_t* block, int word_offset, int block_offset) 
 	return block->data[4 * word_offset + block_offset];
 }
 
+/*	FALTA CARGAR EL BLOQUE EN LA CACHE CUANDO HAY UN MISS.
+ * 	
+ *	PARA ESO FALTA IMPLEMENTAR LA LISTA LRU (EL BLOQUE N DE LA VIA 1 COMPARTE
+ * 	LA LISTA LRU CON EL BLOQUE N DE LA VIA 2). SI LA LISTA ESTA LLENA (ES DECIR
+ *	EL LARGO DE LA LISTA ES 2) SE BORRA EL MENOS USADO RECIENTEMENTE.
+ * 
+*/
 
 unsigned char read_byte(cache_t* cache_memory, int address) {
 	int tag = address & TAG_MASK;
@@ -66,36 +73,30 @@ unsigned char read_byte(cache_t* cache_memory, int address) {
 	
 	if (tag == block_1st_way->tag) {
 		if (block_1st_way->V == 1) {
-			// hit
+			// hit en esta via
 			printf("HIT 1!\n");
-			data = get_data(block_1st_way, word_offset, block_offset);
-		} else {
-			// miss, cargar bloque, actualizar bit V
-			//unsigned char memory_data = memory[address];
-			printf("MISS 1!\n");
-			block_1st_way->V = 1;
-			cache_memory->misses++;
+			return get_data(block_1st_way, word_offset, block_offset);
+		} 
+		// miss en esta via, puede estar en la otra
+		// sino esta en la otra cargar el bloque a cache, actualizar bit V
 		}
-	} else if (tag == block_2nd_way->tag) {
+	}
+	
+	if (tag == block_2nd_way->tag) {
 		if (block_1st_way->V == 1) {
 			// hit
 			printf("HIT 2!\n");
-			data = get_data(block_1st_way, word_offset, block_offset);
-		} else {
-			// miss, cargar bloque, actualizar bit V
-			//unsigned char memory_data = memory[address];
-			printf("MISS 2!\n");
-			block_1st_way->V = 1;
-			cache_memory->misses++;
-		}
-	} else {
-		// miss, cargar bloque, actualizar tag y bit V
-		//unsigned char memory_data = memory[address];
-		printf("MISS 3!\n");
-		block_1st_way->tag = (unsigned char)tag;
-		block_1st_way->V = 1;
-		cache_memory->misses++;
+			return get_data(block_1st_way, word_offset, block_offset);
+		} 
+		// miss en esta via, tampoco esta en la otra entonces
+		// hay que cargar el bloque a cache, actualizar bit V
 	}
+	// Si la ejecucion llego aca significa que hubo un miss, cargar bloque, 
+	// actualizar tag y bit V
+	
+	/* 	
+	 *	ACA VA LA IMPLEMENTACION QUE FALTA
+	*/
 
 	return data;
 }
@@ -131,6 +132,7 @@ int write_byte(cache_t* cache_memory, int address, unsigned char value) {
 		} else {
 			// el dato no fue almacenado en cache. Lo almaceno en memoria ppal.
 			cache_memory->memory[address] = value;
+			cache_memory->misses++;
 			is_a_cache_miss = -1;
 		}
 	} else if (block_2nd_way->V == 1) {
@@ -144,11 +146,13 @@ int write_byte(cache_t* cache_memory, int address, unsigned char value) {
 		} else {
 			// el dato no fue almacenado en cache. Lo almaceno en memoria ppal.
 			cache_memory->memory[address] = value;
+			cache_memory->misses++;
 			is_a_cache_miss = -1;
 		}
 	} else {
 		// el dato no fue almacenado
 		cache_memory->memory[address] = value;
+		cache_memory->misses++;
 		is_a_cache_miss = -1;
 	}
 	
