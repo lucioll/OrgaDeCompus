@@ -57,8 +57,8 @@ int file_parser(char *file_name) {
         fprintf(stderr, ERROR_OPEN, file_name);
         return 1;
     }
-    cache_t cache;
-    init();
+    cache_t cache_;
+    init(&cache_);
     
     char *line = NULL;
     size_t len = 0;
@@ -71,21 +71,23 @@ int file_parser(char *file_name) {
         if (strcmp(token, READ_BYTE) == 0){
             token = strtok(NULL, ",");
             int address = atoi(token);
-            printf("Direccion: %d\n",address);
-            //read_byte(address);
+            printf("Direccion: %d\n", address);
+            printf("Resultado: %d\n", read_byte(&cache_, address));
         } else if (strcmp(token, WRITE_BYTE) == 0) {
             token = strtok(NULL, ",");
             int address = atoi(token);
             printf("Direccion: %d\n",address);
             token = strtok(NULL, ",");
             printf("Value: %s\n",token);
-            //write_byte(address, token);
-        } else if (strcmp(token, MISS_RATE) == 0) {
-            //get_miss_rate();
+            printf("Resultado: %d\n", write_byte(&cache_, address, *(int*)token));
+        } else {
+            printf("Resultado: %u\n", get_miss_rate(&cache_));
         }
+        printf("\n");
     }
     free(line);
     fclose(fp);
+    destroy_cache(&cache_);
     return 0;
 }
 
