@@ -15,11 +15,13 @@
 #define INDEX_MASK 0x1E0
 #define OFFSET_MASK 0x1F
 #include <stdio.h>
+#include <string.h>
 
 cache_block_t* create_cache_block() {
     cache_block_t* cache_block_ = (cache_block_t*) malloc(sizeof(cache_block_t));
     cache_block_->LRU_index = 0;
     cache_block_->data = (unsigned char*) malloc(WORDS_BY_BLOCK);
+    memset(cache_block_->data, 0 ,WORDS_BY_BLOCK);
     cache_block_->V = 0; //Valido es 1 e invalido es 0
     cache_block_->tag = 0;
     return cache_block_;
@@ -28,6 +30,7 @@ cache_block_t* create_cache_block() {
 
 void init(cache_t* cache_memory) {
 	cache_memory->memory = (unsigned char*) malloc(MEMORY_SIZE);
+    memset(cache_memory->memory, 0 ,MEMORY_SIZE);
     cache_memory->misses = 0;
     cache_memory->accesses = 0;
     
@@ -189,11 +192,9 @@ int write_byte(cache_t* cache_memory, int address, unsigned char value) {
 	return is_a_cache_miss;
 }
 
-
 unsigned int get_miss_rate(cache_t* cache_memory) {
 	return (unsigned int)((float)((float)cache_memory->misses / (float)cache_memory->accesses) * 100);
 }
-
 
 void destroy_cache(cache_t* cache_memory) {
 	for (int i = 0; i < BLOCKS_PER_WAY; ++i) {
