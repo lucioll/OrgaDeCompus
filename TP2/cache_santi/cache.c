@@ -2,8 +2,11 @@
 #include "cache.h"
 #include "lista.h"
 #define MEMORY_SIZE 4096 // in bytes
-#define BLOCK_SIZE 32 // in bytes
-#define BLOCKS_PER_WAY 16
+#define CACHE_SIZE 1024
+#define WORDS_BY_BLOCK 32 // in bytes
+#define N_WAYS 2
+#define BLOCK_SIZE 32
+#define BLOCKS_PER_WAY CACHE_SIZE/(N_WAYS * BLOCK_SIZE)
 #define CACHE_WAY_SIZE 512 // in bytes
 #define VALID_BITS_SIZE 2 // in bytes
 #define TAG_MEMORY_SIZE 6 // in bytes
@@ -16,9 +19,9 @@
 #include <stdio.h>
 
 cache_block_t* create_cache_block() {
-    cache_block_t* cache_block_ = (cache_block_t*) malloc(sizeof(cache_block_t));;
-    cache_block_->LRU_list = lista_crear();
-    cache_block_->data = (unsigned char*) malloc(BLOCK_SIZE);;
+    cache_block_t* cache_block_ = (cache_block_t*) malloc(sizeof(cache_block_t));
+    cache_block_->LRU_index = 0;
+    cache_block_->data = (unsigned char*) malloc(WORDS_BY_BLOCK);
     cache_block_->V = 0; //Valido es 1 e invalido es 0
     cache_block_->tag = 0;
     return cache_block_;
@@ -51,16 +54,19 @@ unsigned char get_data(cache_block_t* block, int word_offset, int block_offset) 
  * 
 */
 
-unsigned char read_byte(cache_t* cache_memory, int address) {
+int read_byte(cache_t* cache_memory, int address) {
 	int tag = address & TAG_MASK;
 	// shift right tag 9 bits
 	tag = tag >> 9;
+	
+	printf("TAG: %d\n",tag);
 	
 	int block_offset = address & BLOCK_OFFSET_MASK;
 	
 	int index = address & INDEX_MASK;
 	// shift right index 5 bits
 	index = index >> 5;
+	printf("INDEX: %d\n", index);
 	
 	int word_offset = address & WORD_OFFSET_MASK;
 	// shift right word_offset 2 bits
@@ -68,24 +74,26 @@ unsigned char read_byte(cache_t* cache_memory, int address) {
 	
 	cache_block_t* block_1st_way = cache_memory->cache_1st_way[index];
 	cache_block_t* block_2nd_way = cache_memory->cache_2nd_way[index];
-	unsigned char data = 1; // en el enuciado decia -1 si no esta en cache pero no se puede hacer
 	cache_memory->accesses++;
-	
-	if (tag == block_1st_way->tag) {
-		if (block_1st_way->V == 1) {
+ 
+	if (block_1st_way->V == 1) {
+		if (tag == block_1st_way->tag) {
 			// hit en esta via
 			printf("HIT 1!\n");
+			block_1st_way->LRU_index = 1;
+			block_2nd_way->LRU_index = 0;
 			return get_data(block_1st_way, word_offset, block_offset);
 		} 
 		// miss en esta via, puede estar en la otra
 		// sino esta en la otra cargar el bloque a cache, actualizar bit V
-		}
 	}
-	
-	if (tag == block_2nd_way->tag) {
-		if (block_2nd_way->V == 1) {
+ 
+	if (block_2nd_way->V == 1) {
+		if (tag == block_2nd_way->tag) {
 			// hit
 			printf("HIT 2!\n");
+            block_1st_way->LRU_index = 0;
+            block_2nd_way->LRU_index = 1;
 			return get_data(block_2nd_way, word_offset, block_offset);
 		} 
 		// miss en esta via, tampoco esta en la otra entonces
@@ -93,12 +101,27 @@ unsigned char read_byte(cache_t* cache_memory, int address) {
 	}
 	// Si la ejecucion llego aca significa que hubo un miss, cargar bloque, 
 	// actualizar tag y bit V
-	
-	/* 	
-	 *	ACA VA LA IMPLEMENTACION QUE FALTA
-	*/
+	cache_block_t* block_to_replace;
+	if (block_1st_way->LRU_index == 1) {
+		block_to_replace = block_2nd_way;
+        block_1st_way->LRU_index = 0;
+        block_to_replace->LRU_index = 1;
+	} else {
+		block_to_replace = block_1st_way;
+        block_2nd_way->LRU_index = 0;
+        block_to_replace->LRU_index = 1;
+	}
+	int j = 0;
+	int init_address = (address / BLOCK_SIZE) * BLOCK_SIZE; //Inicio de direccion a copiar
+    printf("Cargo bloque en MC desde %d a %d\n",init_address,init_address + WORDS_BY_BLOCK);
+	for (int i = init_address ; i < (init_address + WORDS_BY_BLOCK) ; ++i) {
+		block_to_replace->data[j] = cache_memory->memory[i];
+		j++;
+	}
+	block_to_replace->tag = tag;
+	block_to_replace->V = 1;
 
-	return data;
+	return -1;
 }
 
 
@@ -106,57 +129,58 @@ int write_byte(cache_t* cache_memory, int address, unsigned char value) {
 	int tag = address & TAG_MASK;
 	// shift right tag 9 bits
 	tag = tag >> 9;
+	printf("TAG: %d\n",tag);
 	
 	int block_offset = address & BLOCK_OFFSET_MASK;
 	
 	int index = address & INDEX_MASK;
 	// shift right index 5 bits
 	index = index >> 5;
-	
+	printf("INDEX: %d\n", index);
 	int word_offset = address & WORD_OFFSET_MASK;
 	// shift right word_offset 2 bits
 	word_offset = word_offset >> 2;
 	
 	cache_block_t* block_1st_way = cache_memory->cache_1st_way[index];
 	cache_block_t* block_2nd_way = cache_memory->cache_2nd_way[index];
-	int is_a_cache_miss;
 	
 	if (block_1st_way->V == 1) {
-		// verifico si el dato ya fue almacenado en cache
+		printf("TAG2a: %d\n",tag);
+		printf("TAG BLOCK: %d\n", block_1st_way->tag);
+		// Verifico si hay un hit en cache
 		if (tag == block_1st_way->tag) {
-			// el dato ya fue almacenado en cache. Lo almaceno en memoria ppal.
-			// y actualizo el dato en cache
+			//Se dio el hit y como la politica es WT hay que escribir en MC y MP
+            printf("Escribo en MC y MP\n");
+            
+            //Escribimos en MP
 			cache_memory->memory[address] = value;
+			//Escribimos en MC
 			block_1st_way->data[4 * word_offset + block_offset] = value;
-			is_a_cache_miss = 0;
-		} else {
-			// el dato no fue almacenado en cache. Lo almaceno en memoria ppal.
-			cache_memory->memory[address] = value;
-			cache_memory->misses++;
-			is_a_cache_miss = -1;
+			return 0;
 		}
-	} else if (block_2nd_way->V == 1) {
-		// verifico si el dato ya fue almacenado en cache
-		if (tag == block_2nd_way->tag) {
-			// el dato ya fue almacenado en cache. Lo almaceno en memoria ppal.
-			// y actualizo el dato en cache
-			cache_memory->memory[address] = value;
-			block_2nd_way->data[4 * word_offset + block_offset] = value;
-			is_a_cache_miss = 0;
-		} else {
-			// el dato no fue almacenado en cache. Lo almaceno en memoria ppal.
-			cache_memory->memory[address] = value;
-			cache_memory->misses++;
-			is_a_cache_miss = -1;
-		}
-	} else {
-		// el dato no fue almacenado
-		cache_memory->memory[address] = value;
-		cache_memory->misses++;
-		is_a_cache_miss = -1;
-	}
+	} 
 	
-	return is_a_cache_miss;
+	if (block_2nd_way->V == 1) {
+        // Verifico si hay un hit en cache
+        printf("TAG2b: %d\n", tag);
+        printf("TAG BLOCK: %d\n", block_2nd_way->tag);
+		if (tag == block_2nd_way->tag) {
+            //Se dio el hit y como la politica es WT hay que escribir en MC y MP
+            printf("Escribo en MC y MP\n");
+            //Escribimos en MP
+			cache_memory->memory[address] = value;
+            //Escribimos en MC
+			block_1st_way->data[4 * word_offset + block_offset] = value;
+			return 0;
+		}
+	}
+	// CACHE MISS
+    //Escribimos solo en MP al ser la politica not WA
+        
+    printf("Escribo solo en MP\n");
+	cache_memory->memory[address] = value;
+	cache_memory->misses++;
+	return -1;
 }
 
 
@@ -167,8 +191,6 @@ unsigned int get_miss_rate(cache_t* cache_memory) {
 
 void destroy_cache(cache_t* cache_memory) {
 	for (int i = 0; i < BLOCKS_PER_WAY; ++i) {
-		lista_destruir(cache_memory->cache_1st_way[i]->LRU_list, NULL);
-		lista_destruir(cache_memory->cache_2nd_way[i]->LRU_list, NULL);
         free(cache_memory->cache_1st_way[i]->data);
         free(cache_memory->cache_2nd_way[i]->data);
         free(cache_memory->cache_1st_way[i]);
