@@ -78,8 +78,9 @@ int file_parser(char *file_name) {
             int address = atoi(token);
             printf("Direccion: %d\n",address);
             token = strtok(NULL, ",");
-            printf("Value: %s\n",token);
-            printf("Resultado: %d\n", write_byte(&cache_, address, *(int*)token));
+            int value = atoi(token);
+            printf("Value: %d\n",value);
+            printf("Resultado: %d\n", write_byte(&cache_, address, value));
         } else {
             printf("Resultado: %u\n", get_miss_rate(&cache_));
         }
