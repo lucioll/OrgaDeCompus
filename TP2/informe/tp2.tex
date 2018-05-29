@@ -56,21 +56,14 @@
 \section{Introducción}
 
 Simulación de una memoria caché asociativa por conjuntos de dos vías, de 1KB de capacidad, bloques de 32 bytes, política de reemplazo LRU
-y política de escritura WT/notWA. Se asume que el espacio de direcciones es de 12 bits, y hay entonces una memoria principal a simular con un tamaño
+y política de escritura WT/?WA. Se asume que el espacio de direcciones es de 12 bits, y hay entonces una memoria principal a simular con un tamaño
 de 4KB. 
 
 \section{Problemática a desarrollar}
 El programa a escribir, en lenguaje C, recibirá un archivo de texto plano, en donde se encuentran las instrucciones a realizar de la siguiente manera:
 \begin{verbatim}
-	W 0, 16
-	R 0
-	R 1024
-	R 3074
-	W 8, 12
-	R 8
-	R 8
-	W 3072, 255
-	R 0
+	W dddd, vvv
+	R dddd
 	MR
 \end{verbatim}
 
@@ -93,16 +86,18 @@ unsigned int get_miss_rate()
 \section{Detalles de implementación}
 	
 	\subsection{Estructura Cache}
-	Division de address:	
+	\subsubsection{Division de address}	
 		
 	\begin{itemize}
 	\item Offset de palabra de 3 bits, ya en cada bloque se encuentran 8 lineas.
 	\item Offset de bloque de 2 bits, al ser de 4 bytes la palabra.
-	\item Tag formado por 3 bits, contiene los bits resantes de la dirección.
 	\item Index formado por otros 4 bits para seleccionar entre los 16 bloques.
+	\item Tag formado por 3 bits, contiene los bits resantes de la dirección.
 	\end{itemize}
 	
 	Por lo tanto, la dirección es interpretada con un offset formado por los primeros 5 bits menos significativos y los 7 bits subsiguientes conforman el index y el tag.
+	\subsubsection{LRU}	
+	Para la implementación de la politica de reemplazo LRU dentro de la cache, se opto por colocar una varaible dentro de cada bloque, que se inicializa en cero; en caso de ser el ultimo recientemente es seteado como uno. Por lo tanto al cargar un bloque solo se verifica si ese flag esta en 0 o en 1.
 	
 	\subsection{Salida estándar}
 Se muestra por salida estándar según el comando solicitado por el usuario. En la siguiente sección $Ejemplos$ se podrán apreciar los flags implementados del programa y como ejecutarlos.
@@ -125,20 +120,421 @@ Example:
 ./cache -i input_file
 \end{verbatim}
 
+\section{Casos de Prueba}
+
+\begin{enumerate}
+	
+		\item En el caso del primer archivo: 
+		
+		\texttt{\$cat prueba1.mem}
+		
+		\begin{verbatim}
+1  W 0, 16
+2  R 0
+3  R 1024
+4  R 8
+5  R 2050
+6  R 3074
+7  W 8, 12
+8  R 8
+9  R 8
+10 W 3072, 255
+11 W 2048, 10
+12 R 0
+13 MR
+\end{verbatim}
+		
+		\textit{linea 1}: Cache vacia, es un \textit{miss}, se escribe 16 en la posición 0, por la politica $WT/not WA$ solo se escribe en la memoria principal.
+		
+		\textit{linea 2}: Se quiere leer la posicion cero, es un \textit{miss}, se carga en cache al conjunto 0.
+		
+		\textit{linea 3}: Se quiere leer la posición 1024, es un \textit{miss} compulsivo, se carga en cache al conjunto 0.
+		
+		\textit{linea 4}: Se quiere leer la posicion 8, como anteriormente se cargo el bloque de 0 a 31, es un \textit{hit}.
+		
+		\textit{linea 5/6}: \textit{misses} compulsivos, se cargan en el conjunto 0 (por ser de index 0000).
+			
+				\textit{linea 7/8}: \textit{miss} porque el bloque fue anteriormente reemplazado por la politica LRU.
+				
+					\textit{linea 9}: \textit{hit} el bloque fue cargado en la linea anterior, devuelve 12.
+					
+						\textit{linea 10}: \textit{hit}, bloque fue cargado anteriormente.
+									\textit{linea 11}: \textit{miss}.
+												\textit{linea 12}: \textit{hit}.
+		
+			
+			\[
+ \boxed{MR = \frac{8}{12}\times 100 = 66}
+\]		
+								
+		\texttt{\$./cache prueba1.mem}
+		Cuya salida por salida estándar mediante la pruebas es:
+		\begin{verbatim}
+		Instruccion: W
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 0
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 12
+
+Instruccion: W
+Resultado: 0
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: R
+Resultado: 16
+
+Instruccion: MR
+
+Resultado: 66
+
+		\end{verbatim}
 
 
+		\item En el caso del segundo archivo:
+		
+		\texttt{\$cat prueba2.mem}
+		
+		\begin{verbatim}
+1  R 0
+2  R 31
+3  W 32, 10
+4  R 32
+5  W 32, 20
+6  R 32
+7  R 1040
+8  R 2064
+9  R 32
+10 R 32
+11 MR 
+		\end{verbatim}
+	
+
+		\textit{linea 1}: Cache vacia, es un \textit{miss} compulsivo, se carga el bloque (0,31) sobre el conjunto 0 de cache.
+		
+		\textit{linea 2}: Es un \textit{hit}, fue cargado en la linea anterior. 
+		
+		\textit{linea 3}: Es un \textit{miss}, se esccribe solo sobre memoria principal.
+		
+		\textit{linea 4}: Es un \textit{miss}, se carga el bloque (32, 63) al conjunto 1 del cache por tener un index de 0001.
+		
+		\textit{linea 5}: \textit{hit}.
+			
+				\textit{linea 6}: \textit{hit} devuelve 20.
+				
+					\textit{linea 7/8}: \textit{misses} compulsivos, el bloque que contiene 1024 va a parar al conjunto 0 del cache y el 2064 al 1.
+					
+						\textit{linea 9/10}: \textit{hit}, bloque fue cargado anteriormente en la via 0 del conjunto 1.
+					
+			
+			\[
+ \boxed{MR = \frac{5}{10}\times 100 = 50}
+\]
+
+		\texttt{./cache prueba2.mem}
+		 
+		Cuya salida por salida estándar mediante la pruebas es:
+		\begin{verbatim}
+		Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 0
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: W
+Resultado: 0
+
+Instruccion: R
+Resultado: 20
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 20
+
+Instruccion: R
+Resultado: 20
+
+Instruccion: MR
+
+Resultado: 50
+
+		\end{verbatim}
+		
+		
+		\item En el caso del tercer archivo: 
+		
+		\texttt{\$cat prueba3.mem}		
+		\begin{verbatim}
+1  W 0, 1
+2  W 1, 2
+3  W 2, 3
+4  W 3, 4
+5  W 4, 5
+6  R 0
+7  R 1
+8  R 2
+9  R 3
+10 R 4
+11 MR 
+		\end{verbatim}
+
+		\textit{linea 1-5}: Cache vacia, son \textit{misses}, se escribe sobre memoria principal.
+		
+		\textit{linea 6}: Es un \textit{miss}, se carga el bloque (0,31) sobre el conjunto 0 de la cache.
+		
+		\textit{linea 7-10}: Son \textit{hits}, bloque fue cargado a la cache en la linea anterior.
+		
+			\[
+ \boxed{MR = \frac{6}{10}\times 100 = 60}
+\]
+
+		\texttt{./cache prueba3.mem}
+		
+		Cuya salida por salida estándar mediante la pruebas es:
+		\begin{verbatim}
+		Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 2
+
+Instruccion: R
+Resultado: 3
+
+Instruccion: R
+Resultado: 4
+
+Instruccion: R
+Resultado: 5
+
+Instruccion: MR
+
+Resultado: 60
+
+		\end{verbatim}
+		
+			\item En el caso del cuarto archivo: 
+		
+		\texttt{\$cat prueba4.mem}		
+		\begin{verbatim}
+1  W 0, 1
+2  W 1, 2
+3  W 2, 3
+4  W 3, 4
+5  W 4, 5
+6  R 0
+7  R 1
+8  R 2
+9  R 3
+10 R 4
+11 R 1024
+12 R 2048
+13 R 0
+14 R 1
+15 R 2
+16 R 3
+17 R 4
+18 MR
+		\end{verbatim}
+
+		\textit{linea 1-5}: Cache vacia, son \textit{misses}, se escribe sobre memoria principal.
+		
+		\textit{linea 6}: Es un \textit{miss}, se carga el bloque (0,31) sobre el conjunto 0 de la cache.
+		
+		\textit{linea 7-10}: Son \textit{hits}, bloque fue cargado a la cache en la linea anterior.
+		
+		\textit{linea 11/12}: \textit{Misses} compulsivos, el bloque que contiene 1024 va a parar al conjunto 0 del cache sobre la vía 1 y el 2048 en el conjunto 0, pero sobre la via 0 (aplicando política de reemplazo LRU).
+				
+						\textit{linea 13}: \textit{miss}, bloque (0,31) fue reemplazado anteriormente, se vuelve a cargar en la vía 1 del conjunto 0.
+						
+\textit{linea 14-17}: Son \textit{hits}, bloque fue cargado a la cache en la linea anterior.
+					
+	\[
+ \boxed{MR = \frac{9}{17}\times 100 = 52}
+\]
+
+		\texttt{./cache prueba4.mem}
+		
+		Cuya salida por salida estándar mediante la pruebas es:
+		\begin{verbatim}
+		Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: W
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 2
+
+Instruccion: R
+Resultado: 3
+
+Instruccion: R
+Resultado: 4
+
+Instruccion: R
+Resultado: 5
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: 2
+
+Instruccion: R
+Resultado: 3
+
+Instruccion: R
+Resultado: 4
+
+Instruccion: R
+Resultado: 5
+
+Instruccion: MR
+
+Resultado: 52
+		\end{verbatim}
+		
+		
+			\item En el caso del quinto archivo: 
+		
+		\texttt{\$cat prueba5.mem}		
+		\begin{verbatim}
+R 0
+R 1024
+R 3072
+R 2048
+R 0
+R 3072
+MR
+		\end{verbatim}
+
+		\textit{linea 1}: se quiere leer la posición 0, cache vacia, es un \textit{miss}, se carga el bloque (0,31) sobre la via 0 del conjunto 0.
+		
+			\textit{linea 2}: se quiere leer la pos 1024, es un \textit{miss}, se carga el bloque sobre la vía 1 del conjunto 0.
+			
+		\textit{linea 3}: Se quiere leer la pos 3072, es un \textit{miss}, se carga el bloque sobre la via 0 del conjunto 0. Ya que 3072 en binario es 110000000000, por lo tanto tiene index 0000.
+		
+				\textit{linea 4}: Se quiere leer la pos 2048, es un \textit{miss}, se carga el bloque sobre la via 1 del conjunto 0. Ya que tiene index 0000.	
+						\textit{linea 5}: Se quiere leer la pos 0, es un \textit{miss}, fue reemplazada anteriormente, se carga el bloque a la via 0 del conjunto 0.
+						
+						\textit{linea 6}: Se quiere leer la pos 3072, es un \textit{miss}, fue reemplazada anteriormente, se carga el bloque a la via 1 del conjunto 0.
+	
+\[
+ \boxed{MR = \frac{6}{6}\times 100 = 100}
+\]
+
+		\texttt{./cache prueba5.mem}
+		
+		Cuya salida por salida estándar mediante la pruebas es:
+		\begin{verbatim}
+		Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: R
+Resultado: -1
+
+Instruccion: MR
+
+Resultado: 100
+
+		\end{verbatim}
+\end{enumerate}
+
+\newpage
+
+
+   
 \section{Compilación}
-Realizar \texttt{make} sobre la carpeta en donde se encuentran los archivos, generara un ejecutable \texttt{cache} . 
+Realizar \texttt{make} sobre la carpeta en donde se encuentran los archivos fuente, generara un ejecutable \texttt{cache}. 
 
 Github: \texttt{https://github.com/lucioll/OrgaDeCompus.git} dentro de la carpeta \texttt{TP2}.
 
-%\section{Conclusión}
+\section{Conclusión}
 
-	%Mediante el estudio y simulación de una cache en C, pudimos observar y comprender su funcionamiento dentro de la ejecución de un programa, como se relaciona con el CPU y la memoria principal.
+	Mediante el estudio y simulación de una cache en C, pudimos observar y comprender su funcionamiento dentro de la ejecución de un programa, como se relaciona con el CPU y la memoria principal.
 
-	%Asimismo entendimos la importancia de elección en cuanto al tamanio de memoria asociada al la cache (bloques y vias), además de la política de reemplazo utilizada en caso de haber conflictos.
-
-	%Finalmente concluimos que no necesariamente colocando una cache a un programa este se va a ejecutar mas eficientemente, influye fuertemente como este implementada, cuantas vías utiliza, y otros factores mencionados anteriormente.
+	Asimismo entendimos la los principios de localidad espacial y temporal, mediante las reiteradas pruebas realizadas sobre distintas direcciones de memoria; además como influye la política de reemplazo utilizada en estos aspectos.
+	
+	Finalmente concluimos que no necesariamente colocando una cache a un programa este se va a ejecutar mas eficientemente, influye fuertemente como este implementada, es decir, cuantas vías utiliza, que política de escritura utiliza y otros factores mencionados anteriormente.
 
 
 % Citas bibliográficas.
