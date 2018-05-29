@@ -1,6 +1,5 @@
 #ifndef CACHE_H
 #define CACHE_H
-#include "lista.h"
 
 //Estructura para un bloque de cache
 typedef struct cache_block {

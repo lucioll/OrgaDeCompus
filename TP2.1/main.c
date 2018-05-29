@@ -13,6 +13,8 @@
 
 #define VERSION 1.0
 #define ERROR -1
+#define MEMORY_SIZE 4096 // in bytes
+#define BAD_ADDRESS "Direccion negativa o mayor a 4096<%s>.\n"
 #define ERROR_OPEN "No se puede abrir el archivo <%s>.\n"
 #define READ_BYTE "R"
 #define WRITE_BYTE "W"
@@ -57,6 +59,8 @@ int file_parser(char *file_name) {
         fprintf(stderr, ERROR_OPEN, file_name);
         return 1;
     }
+    cache_t cache_;
+    init(&cache_);
     
     char *line = NULL;
     size_t len = 0;
@@ -65,25 +69,29 @@ int file_parser(char *file_name) {
         char *token;
         /* get the first token */
         token = strtok(line, " ");
-        printf("Token: %s\n",token);
+        printf("Instruccion: %s\n",token);
         if (strcmp(token, READ_BYTE) == 0){
             token = strtok(NULL, ",");
             int address = atoi(token);
-            printf("Direccion: %d\n",address);
-            //read_byte(address);
+            if ((address > MEMORY_SIZE) || (address < 0)) {
+                fprintf(stderr, BAD_ADDRESS, file_name);
+                return 1;
+            }
+            printf("Resultado: %d\n", read_byte(&cache_, address));
         } else if (strcmp(token, WRITE_BYTE) == 0) {
             token = strtok(NULL, ",");
             int address = atoi(token);
-            printf("Direccion: %d\n",address);
             token = strtok(NULL, ",");
-            printf("Value: %s\n",token);
-            //write_byte(address, token);
-        } else if (strcmp(token, MISS_RATE) == 0) {
-            //get_miss_rate();
+            int value = atoi(token);
+            printf("Resultado: %d\n", write_byte(&cache_, address, value));
+        } else {
+            printf("Resultado: %u\n", get_miss_rate(&cache_));
         }
+        printf("\n");
     }
     free(line);
     fclose(fp);
+    destroy_cache(&cache_);
     return 0;
 }
 
