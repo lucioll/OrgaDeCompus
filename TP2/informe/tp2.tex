@@ -1,0 +1,153 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Definición del tipo de documento.                                           %
+% Posibles tipos de papel: a4paper, letterpaper, legalpapper                  %
+% Posibles tamaños de letra: 10pt, 11pt, 12pt                                 %
+% Posibles clases de documentos: article, report, book, slides                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,10pt]{article}
+\usepackage{listings}
+\usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{amsmath,amssymb}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Los paquetes permiten ampliar las capacidades de LaTeX.                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Paquete para inclusión de gráficos.
+\usepackage{graphicx}
+\usepackage{float}
+
+% Paquete para definir la codificación del conjunto de caracteres usado
+% (latin1 es ISO 8859-1).
+\usepackage[latin1]{inputenc}
+
+% Paquete para definir el idioma usado.
+\usepackage[spanish]{babel}
+
+
+
+% Título principal del documento.
+\title{		\textbf{TP2 - Memorias caché}}
+
+% Información sobre los autores.
+\author{	Lucio Lopez Lecube, \textit{Padrón Nro. 96583}                     \\
+            \texttt{luciolopezlecube@gmail.com }                                              \\
+            Santiago Alvarez Juliá, \textit{Padrón Nro. 99522}                     \\
+            \texttt{ santiago.alvarezjulia@gmail.com }                                              \\
+            Bautista Canavese, \textit{Padrón Nro. 99714}                     \\
+            \texttt{ bauti-canavese@hotmail.com }                                              
+ \\[2.5ex]
+            \normalsize{Grupo Nro.   - 1er. Cuatrimestre de 2018}                       \\
+            \normalsize{66.20 Organización de Computadoras}                             \\
+            \normalsize{Facultad de Ingeniería, Universidad de Buenos Aires}            \\ }
+
+
+\begin{document}
+
+% Inserta el título.
+\maketitle
+
+% Quita el número en la primer página.
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introducción}
+
+Simulación de una memoria caché asociativa por conjuntos de dos vías, de 1KB de capacidad, bloques de 32 bytes, política de reemplazo LRU
+y política de escritura WT/notWA. Se asume que el espacio de direcciones es de 12 bits, y hay entonces una memoria principal a simular con un tamaño
+de 4KB. 
+
+\section{Problemática a desarrollar}
+El programa a escribir, en lenguaje C, recibirá un archivo de texto plano, en donde se encuentran las instrucciones a realizar de la siguiente manera:
+\begin{verbatim}
+	W 0, 16
+	R 0
+	R 1024
+	R 3074
+	W 8, 12
+	R 8
+	R 8
+	W 3072, 255
+	R 0
+	MR
+\end{verbatim}
+
+\begin{itemize}
+\item Los comandos de la forma \texttt{R dddd} lee el dato dddd y lo imprime.
+\item Los comandos de la forma \texttt{W dddd, vvv} escriben en la dirección dddd el valor vvv.
+\item Los comandos de la forma \texttt{MR} imprime el miss rate actual del programa ejecutado sobre la cache.
+\end{itemize}
+
+
+Además, implementando las siguientes primitivas:
+
+\begin{verbatim}
+void init()
+unsigned char read_byte(int address)
+int write_byte(int address, unsigned char value)
+unsigned int get_miss_rate()
+\end{verbatim}
+
+\section{Detalles de implementación}
+	
+	\subsection{Estructura Cache}
+	Division de address:	
+		
+	\begin{itemize}
+	\item Offset de palabra de 3 bits, ya en cada bloque se encuentran 8 lineas.
+	\item Offset de bloque de 2 bits, al ser de 4 bytes la palabra.
+	\item Tag formado por 3 bits, contiene los bits resantes de la dirección.
+	\item Index formado por otros 4 bits para seleccionar entre los 16 bloques.
+	\end{itemize}
+	
+	Por lo tanto, la dirección es interpretada con un offset formado por los primeros 5 bits menos significativos y los 7 bits subsiguientes conforman el index y el tag.
+	
+	\subsection{Salida estándar}
+Se muestra por salida estándar según el comando solicitado por el usuario. En la siguiente sección $Ejemplos$ se podrán apreciar los flags implementados del programa y como ejecutarlos.
+
+\section{Ejemplos}
+Con la opción -h se vera los distintos falgs disponibles para ejecutar el programa.
+\begin{verbatim}
+$ 
+Usage:
+  cache -h
+  cache -V
+  cache [options] filename
+Options:
+  -h, --help    Prints usage information.
+  -V, --version Prints version information.
+  -i, --input   Path to input file.
+
+Example:
+./cache  input_file
+./cache -i input_file
+\end{verbatim}
+
+
+
+\section{Compilación}
+Realizar \texttt{make} sobre la carpeta en donde se encuentran los archivos, generara un ejecutable \texttt{cache} . 
+
+Github: \texttt{https://github.com/lucioll/OrgaDeCompus.git} dentro de la carpeta \texttt{TP2}.
+
+%\section{Conclusión}
+
+	%Mediante el estudio y simulación de una cache en C, pudimos observar y comprender su funcionamiento dentro de la ejecución de un programa, como se relaciona con el CPU y la memoria principal.
+
+	%Asimismo entendimos la importancia de elección en cuanto al tamanio de memoria asociada al la cache (bloques y vias), además de la política de reemplazo utilizada en caso de haber conflictos.
+
+	%Finalmente concluimos que no necesariamente colocando una cache a un programa este se va a ejecutar mas eficientemente, influye fuertemente como este implementada, cuantas vías utiliza, y otros factores mencionados anteriormente.
+
+
+% Citas bibliográficas.
+\begin{thebibliography}{99}
+
+\bibitem{HEN00} Hennessy, John L. and Patterson, David A., Computer Architecture: A
+Quantitative Approach, Third Edition, 2002.
+
+
+\end{thebibliography}
+
+\end{document}
