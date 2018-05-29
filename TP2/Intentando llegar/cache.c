@@ -94,6 +94,7 @@ int read_byte(cache_t* cache_memory, int address) {
 	}
 	// Si la ejecucion llego aca significa que hubo un miss, cargar bloque,
 	// actualizar tag y bit V
+	cache_memory->misses++;
 	cache_block_t* block_to_replace;
 	if (block_1st_way->LRU_index == 1) {
 		block_to_replace = block_2nd_way;
@@ -142,6 +143,8 @@ int write_byte(cache_t* cache_memory, int address, unsigned char value) {
 	cache_block_t* block_1st_way = cache_memory->cache_1st_way[index];
 	cache_block_t* block_2nd_way = cache_memory->cache_2nd_way[index];
 	int is_a_cache_miss;
+	
+	cache_memory->accesses++;
 	
 	if (block_1st_way->V == 1) {
 		// Verifico si hay un hit en cache
