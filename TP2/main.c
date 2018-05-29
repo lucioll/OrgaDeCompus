@@ -81,6 +81,10 @@ int file_parser(char *file_name) {
         } else if (strcmp(token, WRITE_BYTE) == 0) {
             token = strtok(NULL, ",");
             int address = atoi(token);
+            if ((address > MEMORY_SIZE) || (address < 0)) {
+                fprintf(stderr, BAD_ADDRESS, file_name);
+                return 1;
+            }
             token = strtok(NULL, ",");
             int value = atoi(token);
             printf("Resultado: %d\n", write_byte(&cache_, address, value));
